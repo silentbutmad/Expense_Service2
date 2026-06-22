@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 import express from "express"
 import cors from "cors"
 import expenseRoutes from './routes/expenseRoutes.js'
+import eureka from "./eurukaregister.js";
 
 
 dotenv.config()
@@ -19,4 +20,13 @@ app.use('/expenses', expenseRoutes)
 
 app.listen(5000, () => {
   console.log("Expense Service running on port 5000")
+
+  eureka.start((error) => {
+    if (error) {
+      console.log("Eureka registration failed:", error);
+    } else {
+      console.log("AUTH-SERVICE registered with Eureka");
+    }
+  });
+  
 })
