@@ -1,11 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -13,121 +8,23 @@ datasource db {
   provider = "postgresql"
 }
 
-model Transaction {
-  transaction_id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  transaction_number String
-  business_id        String   @db.Uuid
-  party_id           String?  @db.Uuid
 
-  transaction_type   TransactionType
-
-  transaction_date   DateTime
-  due_date           DateTime?
-
-  subtotal_amount    Decimal @db.Decimal(15,2)
-  total_gst_amount   Decimal @db.Decimal(15,2)
-  total_amount       Decimal @db.Decimal(15,2)
-
-  is_deleted         Boolean  @default(false)
-
-  device_id          String?
-  last_modified_at   DateTime @updatedAt
-
-  created_at         DateTime @default(now())
-  created_by_user_id String   @db.Uuid
-  updated_by_user_id String?  @db.Uuid
-
-
-  @@unique([business_id, transaction_number])
-  @@index([business_id])
-  @@index([party_id])
-  @@index([business_id, transaction_date])
+enum PersonalTransactionType {
+  EXPENSE
+  INCOME
+  LOAN
 }
 
-model Business {
-  business_id   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id       String   @db.Uuid
-  business_name String
-  gst_number     String?
-  address       String?
-
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-
-  @@index([user_id])
+enum LoanType {
+  BORROW
+  LENT
 }
 
-
-
-model Expense_Category {
-  category_id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  business_id  String   @db.Uuid
-  category_name        String
-
-  createdAt   DateTime @default(now())
-
-  @@unique([business_id, category_name])
-  @@index([business_id])
+enum PaymentMode {
+  CASH
+  UPI 
+  OTHER
 }
-
-model Party {
-  party_id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  business_id   String   @db.Uuid
-  name          String
-  phone         String?
-  party_type    PartyType
-
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([business_id])
-}
-
-model Item {
-  item_id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  business_id  String   @db.Uuid
-  name        String
-  price       Decimal  @db.Decimal(12, 2)
-  unit        String?
-  gst_rate     Decimal? @db.Decimal(5, 2)
-  hsn_code     String?
-  item_type    ItemType
-  category_id  String?  @db.Uuid
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([business_id])
-}
-
-model Transaction_item {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  transaction_id String   @db.Uuid
-  item_id        String   @db.Uuid
-  quantity      Int
-  price         Decimal  @db.Decimal(12, 2)
-
-
-  @@index([transaction_id])
-  @@index([item_id])
-}
-
-
-
-model Reminder {
-  reminder_id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  transaction_id String   @db.Uuid
-  channel       ReminderChannel
-  scheduled_date DateTime
-  status        ReminderStatus @default(PENDING)
-  last_sent_at    DateTime?
-
-  
-  @@index([transaction_id])
-}
-
-
 
 enum TransactionType {
   SALE
@@ -137,9 +34,8 @@ enum TransactionType {
 
 enum PartyType {
   CUSTOMER
-  sUPPLIER
+  SUPPLIER
 }
-
 
 enum ReminderChannel {
   SMS
@@ -153,8 +49,186 @@ enum ReminderStatus {
   FAILED
 }
 
-
 enum ItemType {
   PRODUCT
   EXPENSE
+}
+
+enum ExpenseContextType {
+  PERSONAL
+  BUSINESS
+}
+
+model PersonalTransaction {
+  transaction_id String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  user_id        String   @db.Uuid
+
+  transaction_type PersonalTransactionType
+
+  amount         Decimal  @db.Decimal(15,2)
+
+  name           String
+
+  email          String?
+
+  category       String?
+
+  remark         String?
+
+  payment_mode   PaymentMode
+
+  loan_type      LoanType?
+
+  transaction_date DateTime
+
+  due_date       DateTime?
+
+  created_at     DateTime @default(now())
+
+  is_deleted     Boolean @default(false)
+
+  @@index([user_id])
+  //@@index([transaction_type])
+}
+
+model Business {
+  business_id   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id       String   @db.Uuid
+  business_name String
+  gst_number    String?
+  address       String?
+
+  parties       Party[]
+  items         Item[]
+  transactions  Transaction[]
+  expense_categories ExpenseCategory[]
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@index([user_id])
+}
+
+model ExpenseCategory {
+  category_id   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  business_id   String   @db.Uuid
+  category_name String
+
+  business      Business @relation(fields: [business_id], references: [business_id], onDelete: Cascade)
+  items         Item[]
+
+  created_at    DateTime @default(now())
+
+  @@unique([business_id, category_name])
+  @@index([business_id])
+}
+
+model Party {
+  party_id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  business_id String   @db.Uuid
+  name        String
+  phone       String?
+  party_type  PartyType
+
+  business    Business @relation(fields: [business_id], references: [business_id], onDelete: Cascade)
+  transactions Transaction[]
+
+  created_at  DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([business_id])
+}
+
+model Item {
+  item_id      String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  business_id  String   @db.Uuid
+  category_id  String?  @db.Uuid
+
+  name         String
+  price        Decimal  @db.Decimal(12,2)
+  unit         String?
+  gst_rate     Decimal? @db.Decimal(5,2)
+  hsn_code     String?
+  item_type    ItemType
+
+  business     Business        @relation(fields: [business_id], references: [business_id], onDelete: Cascade)
+  category     ExpenseCategory? @relation(fields: [category_id], references: [category_id])
+  transaction_items TransactionItem[]
+
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([business_id])
+  @@index([category_id])
+}
+
+model Transaction {
+  transaction_id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  transaction_number String
+
+  context_type       ExpenseContextType @default(BUSINESS)
+  
+  business_id        String?  @db.Uuid
+  party_id           String?  @db.Uuid
+  user_id            String?  @db.Uuid
+
+  transaction_type   TransactionType
+  transaction_date   DateTime
+  due_date           DateTime?
+
+  subtotal_amount    Decimal  @db.Decimal(15,2)
+  total_gst_amount   Decimal  @db.Decimal(15,2)
+  total_amount       Decimal  @db.Decimal(15,2)
+
+  is_deleted         Boolean  @default(false)
+
+  device_id          String?
+  last_modified_at   DateTime @updatedAt
+
+  created_at         DateTime @default(now())
+  created_by_user_id String   @db.Uuid
+  updated_by_user_id String?  @db.Uuid
+
+  business           Business? @relation(fields: [business_id], references: [business_id])
+  party              Party?   @relation(fields: [party_id], references: [party_id])
+  items              TransactionItem[]
+  reminders          Reminder[]
+
+  @@unique([business_id, transaction_number])
+  @@index([business_id])
+  @@index([party_id])
+  @@index([user_id])
+  @@index([business_id, transaction_date])
+  @@index([business_id, is_deleted])
+  @@index([context_type])
+}
+
+model TransactionItem {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  transaction_id String   @db.Uuid
+  item_id        String?  @db.Uuid
+  description    String?
+  quantity       Int
+  price          Decimal  @db.Decimal(12,2)
+
+  transaction    Transaction @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
+  item           Item?        @relation(fields: [item_id], references: [item_id])
+
+  @@index([transaction_id])
+  @@index([item_id])
+}
+
+model Reminder {
+  reminder_id    String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  transaction_id String   @db.Uuid
+  channel        ReminderChannel
+  scheduled_date DateTime
+  status         ReminderStatus @default(PENDING)
+  last_sent_at   DateTime?
+
+  transaction    Transaction @relation(fields: [transaction_id], references: [transaction_id], onDelete: Cascade)
+
+  @@index([transaction_id])
+  @@index([scheduled_date])
 }

@@ -1,9 +1,19 @@
 import express from "express"
 const router = express.Router()
-import expenseController from '../controllers/expenseController'
+import {createPersonalTransaction ,getAllPersonalTransaction} from '../controller/expenseController.js'
 
-router.post('/', expenseController.createExpense)
-router.get('/', expenseController.getExpenses)
-router.delete('/:id', expenseController.deleteExpense)
+// Personal Transaction CRUD
+router.post('/addpersonalTransaction', createPersonalTransaction)
+router.get('/getAllPersonal', getAllPersonalTransaction)
 
- export default router
+
+//router.get('/summary', expenseController.getExpenseSummary)
+//router.get('/:id', expenseController.getExpenseById)
+//router.put('/:id', expenseController.updateExpense)
+//router.delete('/:id', expenseController.deleteExpense)
+
+// Category management
+//router.get('/categories/list', expenseController.getExpenseCategories)
+//router.post('/categories', expenseController.createExpenseCategory)
+
+export default router
