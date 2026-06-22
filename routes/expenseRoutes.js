@@ -1,10 +1,10 @@
 import express from "express"
 const router = express.Router()
-import {createPersonalTransaction ,getAllPersonalTransaction} from '../controller/expenseController.js'
+import {createPersonalTransaction ,getAllPersonalTransactions} from '../controller/expenseController.js'
 
 // Personal Transaction CRUD
 router.post('/addpersonalTransaction', createPersonalTransaction)
-router.get('/getAllPersonal', getAllPersonalTransaction)
+router.get('/allPersonalTransactions', getAllPersonalTransactions)
 
 
 //router.get('/summary', expenseController.getExpenseSummary)
