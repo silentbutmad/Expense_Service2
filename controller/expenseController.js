@@ -25,7 +25,7 @@ export const createPersonalTransaction = async (req, res) => {
 export const getAllPersonalTransactions = async (req, res) => {
   try {
     const user_id = req.user.user_id;
-    const result = await getAllPersonalTransactionsService(req.query);
+    const result = await getAllPersonalTransactionsService(user_id,req.query);
 
     return res.status(200).json({
       success: true,

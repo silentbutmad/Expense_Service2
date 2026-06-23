@@ -2,7 +2,7 @@ import {prisma} from "../models/db.js";
 
 
 export const createPersonalTransactionService = async ( user_id,data) => {
-  const user_id = req.user.user_id;
+  
   const {
     transaction_type,
     amount,
