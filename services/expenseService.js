@@ -101,40 +101,101 @@ export const getAllPersonalTransactionsService = async ( user_id,query) => {
   };
 };
 
-export const getExpenseSummaryService = async (user_id) => {
+export const getExpenseSummaryService = async (user_id, query = {}) => {
   if (!user_id) {
     throw new Error("user_id is required");
   }
 
-  const where = {
+  const {
+    start_date,
+    end_date,
+    include_business = "false",
+  } = query;
+
+  // Base where clause for personal transactions
+  const personalWhere = {
     user_id,
     is_deleted: false,
   };
 
-  const [incomeResult, expenseResult, loanResult] = await Promise.all([
+  // Base where clause for business transactions
+  const businessWhere = {
+    user_id,
+    is_deleted: false,
+    context_type: "BUSINESS",
+  };
+
+  // Apply date filters if provided
+  if (start_date || end_date) {
+    const dateFilter = {};
+    if (start_date) {
+      dateFilter.gte = new Date(start_date);
+    }
+    if (end_date) {
+      dateFilter.lte = new Date(end_date);
+    }
+    personalWhere.transaction_date = dateFilter;
+    businessWhere.transaction_date = dateFilter;
+  }
+
+  // Personal transaction aggregations
+  const [personalIncomeResult, personalExpenseResult, loanResult] = await Promise.all([
     prisma.personalTransaction.aggregate({
-      where: { ...where, transaction_type: "RECEIVED" },
+      where: { ...personalWhere, transaction_type: "INCOME" },
       _sum: { amount: true },
     }),
     prisma.personalTransaction.aggregate({
-      where: { ...where, transaction_type: "PAID" },
+      where: { ...personalWhere, transaction_type: "EXPENSE" },
       _sum: { amount: true },
     }),
     prisma.personalTransaction.aggregate({
-      where: { ...where, transaction_type: "LOAN" },
+      where: { ...personalWhere, transaction_type: "LOAN" },
       _sum: { amount: true },
     }),
   ]);
 
-  const totalIncome = parseFloat(incomeResult._sum.amount || 0);
-  const totalExpense = parseFloat(expenseResult._sum.amount || 0);
+  const personalIncome = parseFloat(personalIncomeResult._sum.amount || 0);
+  const personalExpense = parseFloat(personalExpenseResult._sum.amount || 0);
   const totalLoan = parseFloat(loanResult._sum.amount || 0);
+
+  let businessIncome = 0;
+  let businessExpense = 0;
+
+  // Include business transactions if requested
+  if (include_business === "true") {
+    const [businessIncomeResult, businessExpenseResult] = await Promise.all([
+      prisma.transaction.aggregate({
+        where: { ...businessWhere, transaction_type: "SALE" },
+        _sum: { total_amount: true },
+      }),
+      prisma.transaction.aggregate({
+        where: { ...businessWhere, transaction_type: "EXPENSE" },
+        _sum: { total_amount: true },
+      }),
+    ]);
+
+    businessIncome = parseFloat(businessIncomeResult._sum.total_amount || 0);
+    businessExpense = parseFloat(businessExpenseResult._sum.total_amount || 0);
+  }
+
+  const totalIncome = personalIncome + businessIncome;
+  const totalExpense = personalExpense + businessExpense;
 
   return {
     total_income: totalIncome,
     total_expense: totalExpense,
     total_loan: totalLoan,
     net_balance: totalIncome - totalExpense,
+    breakdown: {
+      personal: {
+        income: personalIncome,
+        expense: personalExpense,
+      },
+      business: {
+        income: businessIncome,
+        expense: businessExpense,
+      },
+    },
   };
 };
 

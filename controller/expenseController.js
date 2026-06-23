@@ -59,7 +59,7 @@ export const getAllPersonalTransactions = async (req, res) => {
 export const getExpenseSummary = async (req, res) => {
   try {
     const user_id = req.user.user_id;
-    const summary = await getExpenseSummaryService(user_id);
+    const summary = await getExpenseSummaryService(user_id, req.query);
 
     return res.status(200).json({
       success: true,
