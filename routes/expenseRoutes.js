@@ -5,7 +5,7 @@ import {createPersonalTransaction ,getAllPersonalTransactions} from '../controll
 
 // Personal Transaction CRUD
 router.post('/addpersonalTransaction', verifyToken, createPersonalTransaction)
-router.get('/allPersonalTransactions', getAllPersonalTransactions)
+router.get('/allPersonalTransactions', verifyToken,getAllPersonalTransactions)
 
 
 //router.get('/summary', expenseController.getExpenseSummary)
