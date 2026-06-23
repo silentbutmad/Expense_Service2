@@ -1,9 +1,10 @@
 import express from "express"
 const router = express.Router()
+import { verifyToken } from "../middlewares/authMiddleware.js";
 import {createPersonalTransaction ,getAllPersonalTransactions} from '../controller/expenseController.js'
 
 // Personal Transaction CRUD
-router.post('/addpersonalTransaction', createPersonalTransaction)
+router.post('/addpersonalTransaction', verifyToken, createPersonalTransaction)
 router.get('/allPersonalTransactions', getAllPersonalTransactions)
 
 
