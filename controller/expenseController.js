@@ -40,7 +40,7 @@ export const getAllPersonalTransactions = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Transactions fetched successfully",
-      data: result.transactions,
+      transactions: result.transactions,
       pagination: {
         page: result.page,
         limit: result.limit,

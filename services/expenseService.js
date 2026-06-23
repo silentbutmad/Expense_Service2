@@ -113,11 +113,11 @@ export const getExpenseSummaryService = async (user_id) => {
 
   const [incomeResult, expenseResult, loanResult] = await Promise.all([
     prisma.personalTransaction.aggregate({
-      where: { ...where, transaction_type: "INCOME" },
+      where: { ...where, transaction_type: "RECEIVED" },
       _sum: { amount: true },
     }),
     prisma.personalTransaction.aggregate({
-      where: { ...where, transaction_type: "EXPENSE" },
+      where: { ...where, transaction_type: "PAID" },
       _sum: { amount: true },
     }),
     prisma.personalTransaction.aggregate({
