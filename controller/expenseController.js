@@ -3,7 +3,9 @@ import {createPersonalTransactionService,getAllPersonalTransactionsService} from
 
 export const createPersonalTransaction = async (req, res) => {
   try {
-    const transaction = await createPersonalTransactionService(req.body);
+
+    const user_id = req.user.user_id;
+    const transaction = await createPersonalTransactionService(user_id,req.body);
 
     return res.status(201).json({
       success: true,
@@ -22,6 +24,7 @@ export const createPersonalTransaction = async (req, res) => {
 
 export const getAllPersonalTransactions = async (req, res) => {
   try {
+    const user_id = req.user.user_id;
     const result = await getAllPersonalTransactionsService(req.query);
 
     return res.status(200).json({
