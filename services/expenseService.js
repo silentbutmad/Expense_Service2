@@ -2,7 +2,7 @@ import {prisma} from "../models/db.js";
 
 
 export const createPersonalTransactionService = async ( user_id,data) => {
-  
+   
   const {
     transaction_type,
     amount,
@@ -13,8 +13,22 @@ export const createPersonalTransactionService = async ( user_id,data) => {
     payment_mode,
     loan_type,
     transaction_date,
+    transaction_time,
     due_date,
   } = data;
+
+  // Combine date and time if time is provided
+  let finalTransactionDate;
+  if (transaction_date && transaction_time) {
+    // Parse date (YYYY-MM-DD format) and time (HH:mm format)
+    const [year, month, day] = transaction_date.split('-').map(Number);
+    const [hours, minutes] = transaction_time.split(':').map(Number);
+    
+    // Create date in local timezone (no UTC conversion)
+    finalTransactionDate = new Date(year, month - 1, day, hours, minutes);
+  } else {
+    finalTransactionDate = new Date(transaction_date);
+  }
 
   return await prisma.personalTransaction.create({
     data: {
@@ -27,7 +41,7 @@ export const createPersonalTransactionService = async ( user_id,data) => {
       remark: remark?.trim() || null,
       payment_mode,
       loan_type: transaction_type === "LOAN" ? loan_type : null,
-      transaction_date: new Date(transaction_date),
+      transaction_date: finalTransactionDate,
       due_date: due_date ? new Date(due_date) : null,
     },
   });
@@ -268,8 +282,22 @@ export const updateTransactionService = async (user_id, id, data) => {
     payment_mode,
     loan_type,
     transaction_date,
+    transaction_time,
     due_date,
   } = data;
+
+  // Combine date and time if time is provided
+  let finalTransactionDate;
+  if (transaction_date && transaction_time) {
+    // Parse date (YYYY-MM-DD format) and time (HH:mm format)
+    const [year, month, day] = transaction_date.split('-').map(Number);
+    const [hours, minutes] = transaction_time.split(':').map(Number);
+    
+    // Create date in local timezone (no UTC conversion)
+    finalTransactionDate = new Date(year, month - 1, day, hours, minutes);
+  } else {
+    finalTransactionDate = new Date(transaction_date);
+  }
 
   const updateData = {
     transaction_type,
@@ -280,7 +308,7 @@ export const updateTransactionService = async (user_id, id, data) => {
     remark: remark?.trim() || null,
     payment_mode,
     loan_type: transaction_type === "LOAN" ? loan_type : null,
-    transaction_date: new Date(transaction_date),
+    transaction_date: finalTransactionDate,
     due_date: due_date ? new Date(due_date) : null,
     updated_by_user_id: user_id,
   };
