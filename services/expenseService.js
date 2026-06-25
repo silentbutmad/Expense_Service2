@@ -47,12 +47,15 @@ export const createPersonalTransactionService = async ( user_id,data) => {
   });
 };
 
-export const getAllPersonalTransactionsService = async ( user_id,query) => {
+export const getAllPersonalTransactionsService = async (user_id, query) => {
   const {
-    
     page = 1,
     limit = 20,
     transaction_type,
+    loan_type,
+    payment_mode,
+    category,
+    search,
     start_date,
     end_date,
     include_deleted = "false",
@@ -75,12 +78,51 @@ export const getAllPersonalTransactionsService = async ( user_id,query) => {
     where.is_deleted = false;
   }
 
-  // filter by type
+  // filter by transaction type
   if (transaction_type) {
     where.transaction_type = transaction_type;
   }
 
-  // date filter
+  // filter by loan type
+  if (loan_type) {
+    where.loan_type = loan_type;
+  }
+
+  // filter by payment mode
+  if (payment_mode) {
+    where.payment_mode = payment_mode;
+  }
+
+  // filter by category
+  if (category) {
+    where.category = category;
+  }
+
+  // search filter (name, email, remark)
+  if (search) {
+    where.OR = [
+      {
+        name: {
+          contains: search,
+          mode: 'insensitive'
+        }
+      },
+      {
+        email: {
+          contains: search,
+          mode: 'insensitive'
+        }
+      },
+      {
+        remark: {
+          contains: search,
+          mode: 'insensitive'
+        }
+      }
+    ];
+  }
+
+  // date range filter
   if (start_date || end_date) {
     where.transaction_date = {};
 
@@ -106,12 +148,23 @@ export const getAllPersonalTransactionsService = async ( user_id,query) => {
     prisma.personalTransaction.count({ where }),
   ]);
 
+  // Format the response to include separate date and time fields
+  const formattedTransactions = transactions.map(transaction => ({
+    ...transaction,
+    transaction_date: transaction.transaction_date.toISOString().split('T')[0], // YYYY-MM-DD
+    transaction_time: transaction.transaction_date.toISOString().split('T')[1].substring(0, 5), // HH:mm
+  }));
+
+  const totalPages = Math.ceil(total / limitNum);
+
   return {
-    transactions,
+    transactions: formattedTransactions,
     total,
     page: pageNum,
     limit: limitNum,
-    totalPages: Math.ceil(total / limitNum),
+    totalPages,
+    hasNextPage: pageNum < totalPages,
+    hasPreviousPage: pageNum > 1,
   };
 };
 
@@ -230,7 +283,14 @@ export const getTransactionByIdService = async (user_id, id) => {
     throw new Error("Transaction not found");
   }
 
-  return transaction;
+  // Format the response to include separate date and time fields
+  const formattedTransaction = {
+    ...transaction,
+    transaction_date: transaction.transaction_date.toISOString().split('T')[0], // YYYY-MM-DD
+    transaction_time: transaction.transaction_date.toTimeString().split(' ')[0].substring(0, 5), // HH:mm
+  };
+
+  return formattedTransaction;
 };
 
 export const getTransactionsByPersonService = async (user_id, name) => {

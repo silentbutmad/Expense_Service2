@@ -46,6 +46,8 @@ export const getAllPersonalTransactions = async (req, res) => {
         limit: result.limit,
         total: result.total,
         total_pages: result.totalPages,
+        has_next_page: result.hasNextPage,
+        has_previous_page: result.hasPreviousPage,
       },
     });
   } catch (error) {
