@@ -206,24 +206,63 @@ export const getExpenseSummaryService = async (user_id, query = {}) => {
   }
 
   // Personal transaction aggregations
-  const [personalIncomeResult, personalExpenseResult, loanResult] = await Promise.all([
+  const [personalIncomeResult,personalExpenseResult,borrowResult,lentResult,] = await Promise.all([
     prisma.personalTransaction.aggregate({
-      where: { ...personalWhere, transaction_type: "INCOME" },
-      _sum: { amount: true },
+      where: {
+        ...personalWhere,
+        transaction_type: "INCOME",
+      },
+      _sum: {
+        amount: true,
+      },
     }),
+
     prisma.personalTransaction.aggregate({
-      where: { ...personalWhere, transaction_type: "EXPENSE" },
-      _sum: { amount: true },
+      where: {
+        ...personalWhere,
+        transaction_type: "EXPENSE",
+      },
+      _sum: {
+        amount: true,
+      },
     }),
+
     prisma.personalTransaction.aggregate({
-      where: { ...personalWhere, transaction_type: "LOAN" },
-      _sum: { amount: true },
+      where: {
+        ...personalWhere,
+        transaction_type: "LOAN",
+        loan_type: "BORROW",
+      },
+      _sum: {
+        amount: true,
+      },
+    }),
+
+    prisma.personalTransaction.aggregate({
+      where: {
+        ...personalWhere,
+        transaction_type: "LOAN",
+        loan_type: "LENT",
+      },
+      _sum: {
+        amount: true,
+      },
     }),
   ]);
 
   const personalIncome = parseFloat(personalIncomeResult._sum.amount || 0);
   const personalExpense = parseFloat(personalExpenseResult._sum.amount || 0);
-  const totalLoan = parseFloat(loanResult._sum.amount || 0);
+  
+  const totalBorrowed = parseFloat(
+    borrowResult._sum.amount || 0
+  );
+
+  const totalLent = parseFloat(
+    lentResult._sum.amount || 0
+  );
+
+  const totalLoan = totalBorrowed - totalLent;
+
 
   let businessIncome = 0;
   let businessExpense = 0;
@@ -252,7 +291,9 @@ export const getExpenseSummaryService = async (user_id, query = {}) => {
     total_income: totalIncome,
     total_expense: totalExpense,
     total_loan: totalLoan,
-    net_balance: totalIncome - totalExpense,
+    net_balance: totalIncome - totalExpense +totalBorrowed,
+    borrowed_amount: totalBorrowed,
+    lent_amount: totalLent,
     breakdown: {
       personal: {
         income: personalIncome,
