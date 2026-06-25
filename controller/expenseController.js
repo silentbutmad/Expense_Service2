@@ -41,14 +41,12 @@ export const getAllPersonalTransactions = async (req, res) => {
       success: true,
       message: "Transactions fetched successfully",
       transactions: result.transactions,
-      pagination: {
-        page: result.page,
-        limit: result.limit,
-        total: result.total,
-        total_pages: result.totalPages,
-        has_next_page: result.hasNextPage,
-        has_previous_page: result.hasPreviousPage,
-      },
+      total: result.total,
+      page: result.page,
+      limit: result.limit,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPreviousPage: result.hasPreviousPage,
     });
   } catch (error) {
     return res.status(500).json({
