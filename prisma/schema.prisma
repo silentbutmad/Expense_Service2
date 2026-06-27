@@ -22,7 +22,7 @@ enum LoanType {
 
 enum PaymentMode {
   CASH
-  UPI 
+  ONLINE
   OTHER
 }
 

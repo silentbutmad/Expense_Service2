@@ -55,6 +55,7 @@ export const getAllPersonalTransactionsService = async (user_id, query) => {
     loan_type,
     payment_mode,
     category,
+    name,
     search,
     start_date,
     end_date,
@@ -96,6 +97,14 @@ export const getAllPersonalTransactionsService = async (user_id, query) => {
   // filter by category
   if (category) {
     where.category = category;
+  }
+
+  // filter by name (exact match with case-insensitive)
+  if (name) {
+    where.name = {
+      contains: name,
+      mode: 'insensitive'
+    };
   }
 
   // search filter (name, email, remark)
