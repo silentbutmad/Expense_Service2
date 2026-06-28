@@ -44,7 +44,6 @@ export const getAllBusinessesService = async (user_id) => {
           name: true,
           price: true,
           unit: true,
-          item_type: true,
           gst_rate: true,
           hsn_code: true,
         },
@@ -122,7 +121,6 @@ export const getAllItemsService = async (user_id, business_id) => {
       name: true,
       price: true,
       unit: true,
-      item_type: true,
       gst_rate: true,
       hsn_code: true,
       category: {

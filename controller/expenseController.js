@@ -9,6 +9,7 @@ import {
   createReminderService,
   createBusinessTransactionService,
   getAllBusinessTransactionsService,
+  deleteBusinessTransactionService,
 } from "../services/expenseService.js"
 
 import {
@@ -212,6 +213,24 @@ export const createBusinessTransaction = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteBusinessTransaction = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { id } = req.params;
+    const result = await deleteBusinessTransactionService(user_id, id);
+
+    return res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: error.message,

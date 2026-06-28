@@ -11,6 +11,7 @@ import {
   deleteTransaction,
   createReminder,
   createBusinessTransaction,
+  deleteBusinessTransaction,
   getAllBusinessTransactions,
   createBusiness,
   getAllBusinesses,
@@ -35,6 +36,7 @@ router.post('/reminder', verifyToken, createReminder)
 // Business Transaction routes
 router.post('/addBusinessTransaction', verifyToken, createBusinessTransaction)
 router.get('/allBusinessTransactions', verifyToken, getAllBusinessTransactions)
+router.delete('/businessTransaction/:id', verifyToken, deleteBusinessTransaction)
 
 // Business Management routes
 router.post('/createBusiness', verifyToken, createBusiness)

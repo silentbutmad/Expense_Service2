@@ -194,9 +194,17 @@ export const getExpenseSummaryService = async (user_id, query = {}) => {
     is_deleted: false,
   };
 
+  // Get all business IDs for the user
+  const userBusinesses = await prisma.business.findMany({
+    where: { user_id },
+    select: { business_id: true },
+  });
+
+  const businessIds = userBusinesses.map(b => b.business_id);
+
   // Base where clause for business transactions
   const businessWhere = {
-    user_id,
+    business_id: { in: businessIds },
     is_deleted: false,
     context_type: "BUSINESS",
   };
@@ -512,6 +520,36 @@ export const createBusinessTransactionService = async (user_id, data) => {
   });
 
   return transaction;
+};
+
+export const deleteBusinessTransactionService = async (user_id, transaction_id) => {
+  if (!user_id) {
+    throw new Error("user_id is required");
+  }
+
+  // Verify transaction exists and belongs to user's business
+  const transaction = await prisma.transaction.findFirst({
+    where: {
+      transaction_id,
+      user_id,
+      is_deleted: false,
+    },
+  });
+
+  if (!transaction) {
+    throw new Error("Transaction not found");
+  }
+
+  // Soft delete
+  await prisma.transaction.update({
+    where: { transaction_id },
+    data: {
+      is_deleted: true,
+      updated_by_user_id: user_id,
+    },
+  });
+
+  return { success: true, message: "Transaction deleted successfully" };
 };
 
 export const getAllBusinessTransactionsService = async (user_id, query) => {
