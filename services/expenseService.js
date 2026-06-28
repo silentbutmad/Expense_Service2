@@ -186,6 +186,7 @@ export const getExpenseSummaryService = async (user_id, query = {}) => {
     start_date,
     end_date,
     include_business = "false",
+    business_id,
   } = query;
 
   // Base where clause for personal transactions
@@ -202,9 +203,18 @@ export const getExpenseSummaryService = async (user_id, query = {}) => {
 
   const businessIds = userBusinesses.map(b => b.business_id);
 
+  // Filter by specific business if provided
+  const targetBusinessIds = business_id 
+    ? businessIds.filter(id => id === business_id)
+    : businessIds;
+
+  if (targetBusinessIds.length === 0 && business_id) {
+    throw new Error("Business not found or not authorized");
+  }
+
   // Base where clause for business transactions
   const businessWhere = {
-    business_id: { in: businessIds },
+    business_id: { in: targetBusinessIds },
     is_deleted: false,
     context_type: "BUSINESS",
   };
@@ -621,8 +631,40 @@ export const getAllBusinessTransactionsService = async (user_id, query) => {
     prisma.transaction.count({ where }),
   ]);
 
+  // Format transactions - conditionally include party and items based on transaction type
+  const formattedTransactions = transactions.map(transaction => {
+    const baseTransaction = {
+      transaction_id: transaction.transaction_id,
+      transaction_number: transaction.transaction_number,
+      business_id: transaction.business_id,
+      transaction_type: transaction.transaction_type,
+      transaction_date: transaction.transaction_date.toISOString().split('T')[0],
+      due_date: transaction.due_date ? transaction.due_date.toISOString().split('T')[0] : null,
+      subtotal_amount: transaction.subtotal_amount,
+      total_gst_amount: transaction.total_gst_amount,
+      total_amount: transaction.total_amount,
+      is_deleted: transaction.is_deleted,
+      created_at: transaction.created_at,
+    };
+
+    // For EXPENSE transactions, only include basic fields (no party and items)
+    if (transaction.transaction_type === "EXPENSE") {
+      return {
+        ...baseTransaction,
+        // Add minimal fields for expense
+      };
+    }
+
+    // For SALE and other transactions, include party and items
+    return {
+      ...baseTransaction,
+      party: transaction.party,
+      items: transaction.items,
+    };
+  });
+
   return {
-    transactions,
+    transactions: formattedTransactions,
     total,
     page: pageNum,
     limit: limitNum,
