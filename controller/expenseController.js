@@ -246,8 +246,9 @@ export const getAllBusinessTransactions = async (req, res) => {
 export const createBusiness = async (req, res) => {
   try {
     const user_id = req.user.user_id;
-    const business = await createBusinessService(user_id, req.body);
     console.log(req.body)
+    const business = await createBusinessService(user_id, req.body);
+    
 
     return res.status(201).json({
       success: true,
