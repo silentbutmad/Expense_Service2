@@ -140,7 +140,7 @@ export const getAllItemsService = async (user_id, business_id) => {
 
 export const createPartyService = async (user_id, data) => {
   const { business_id, name, phone, party_type } = data
-
+  console.log(data);
   const business = await prisma.business.findFirst({
     where: {
       business_id,
