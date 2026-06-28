@@ -11,6 +11,15 @@ import {
   getAllBusinessTransactionsService,
 } from "../services/expenseService.js"
 
+import {
+  createBusinessService,
+  getAllBusinessesService,
+  createItemService,
+  getAllItemsService,
+  createPartyService,
+  getAllPartiesService,
+} from "../services/businessServices.js"
+
 export const createPersonalTransaction = async (req, res) => {
   try {
 
@@ -227,6 +236,121 @@ export const getAllBusinessTransactions = async (req, res) => {
       },
     });
   } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const createBusiness = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const business = await createBusinessService(user_id, req.body);
+
+    return res.status(201).json({
+      success: true,
+      message: "Business created successfully",
+      data: business,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllBusinesses = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const businesses = await getAllBusinessesService(user_id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Businesses fetched successfully",
+      data: businesses,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const createItem = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const item = await createItemService(user_id, req.body);
+
+    return res.status(201).json({
+      success: true,
+      message: "Item created successfully",
+      data: item,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllItems = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { business_id } = req.query;
+    const items = await getAllItemsService(user_id, business_id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Items fetched successfully",
+      data: items,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const createParty = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const party = await createPartyService(user_id, req.body);
+
+    return res.status(201).json({
+      success: true,
+      message: "Party created successfully",
+      data: party,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAllParties = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { business_id } = req.query;
+    const parties = await getAllPartiesService(user_id, business_id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Parties fetched successfully",
+      data: parties,
+    });
+  } catch (error) {
+    console.error(error);
     return res.status(500).json({
       success: false,
       message: error.message,

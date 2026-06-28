@@ -12,6 +12,12 @@ import {
   createReminder,
   createBusinessTransaction,
   getAllBusinessTransactions,
+  createBusiness,
+  getAllBusinesses,
+  createItem,
+  getAllItems,
+  createParty,
+  getAllParties,
 } from '../controller/expenseController.js'
 
 // Personal Transaction routes
@@ -29,5 +35,13 @@ router.post('/reminder', verifyToken, createReminder)
 // Business Transaction routes
 router.post('/addBusinessTransaction', verifyToken, createBusinessTransaction)
 router.get('/allBusinessTransactions', verifyToken, getAllBusinessTransactions)
+
+// Business Management routes
+router.post('/createBusiness', verifyToken, createBusiness)
+router.get('/allBusiness', verifyToken, getAllBusinesses)
+router.post('/createItem', verifyToken, createItem)
+router.get('/allItems', verifyToken, getAllItems)
+router.post('/createParty', verifyToken, createParty)
+router.get('/allParties', verifyToken, getAllParties)
 
 export default router
