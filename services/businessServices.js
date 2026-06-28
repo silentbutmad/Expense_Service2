@@ -56,7 +56,7 @@ export const getAllBusinessesService = async (user_id) => {
 }
 
 export const createItemService = async (user_id, data) => {
-  const { business_id, category_id, name, price, unit, gst_rate, hsn_code, item_type } = data
+  const { business_id, category_id, name, price, unit, gst_rate, hsn_code, } = data
 
   const business = await prisma.business.findFirst({
     where: {
@@ -91,7 +91,6 @@ export const createItemService = async (user_id, data) => {
       unit: unit?.trim() || null,
       gst_rate: gst_rate ? parseFloat(gst_rate) : null,
       hsn_code: hsn_code?.trim() || null,
-      item_type,
     },
   })
 

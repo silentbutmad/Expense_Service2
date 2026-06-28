@@ -49,10 +49,6 @@ enum ReminderStatus {
   FAILED
 }
 
-enum ItemType {
-  PRODUCT
-  EXPENSE
-}
 
 enum ExpenseContextType {
   PERSONAL
@@ -150,7 +146,7 @@ model Item {
   unit         String?
   gst_rate     Decimal? @db.Decimal(5,2)
   hsn_code     String?
-  item_type    ItemType
+  
 
   business     Business        @relation(fields: [business_id], references: [business_id], onDelete: Cascade)
   category     ExpenseCategory? @relation(fields: [category_id], references: [category_id])
