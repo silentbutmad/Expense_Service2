@@ -483,7 +483,7 @@ export const createBusinessTransactionService = async (user_id, data) => {
     transaction_type,
     transaction_date,
     due_date,
-    items,
+    items = [],
     subtotal_amount,
     total_gst_amount,
     total_amount,
