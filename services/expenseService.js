@@ -639,6 +639,7 @@ export const getAllBusinessTransactionsService = async (user_id, query) => {
       business_id: transaction.business_id,
       transaction_type: transaction.transaction_type,
       transaction_date: transaction.transaction_date.toISOString().split('T')[0],
+      transaction_time: transaction.transaction_date.toISOString().split('T')[1].substring(0, 5),
       due_date: transaction.due_date ? transaction.due_date.toISOString().split('T')[0] : null,
       subtotal_amount: transaction.subtotal_amount,
       total_gst_amount: transaction.total_gst_amount,
