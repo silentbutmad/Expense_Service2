@@ -6,7 +6,7 @@ const eureka = new Eureka({
 
   instance: {
     app: "EXPENSE-SERVICE",
-    hostName: "expense-service2.onrender.com",
+    hostName: "expense-service2-ogpq.onrender.com",
     ipAddr: "0.0.0.0",
 
     port: {
