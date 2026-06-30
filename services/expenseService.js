@@ -502,6 +502,19 @@ export const createBusinessTransactionService = async (user_id, data) => {
     ? parseInt(lastTransaction.transaction_number) + 1 
     : 1;
 
+  // For EXPENSE transactions, save total_amount as-is with no GST
+  // For SALE/PURCHASE, use the provided amounts
+  let finalSubtotal, finalGst, finalTotal;
+  if (transaction_type === "EXPENSE") {
+    finalSubtotal = 0;
+    finalGst = 0;
+    finalTotal = parseFloat(total_amount); // Use the amount directly as total
+  } else {
+    finalSubtotal = parseFloat(subtotal_amount);
+    finalGst = parseFloat(total_gst_amount);
+    finalTotal = parseFloat(total_amount);
+  }
+
   const transaction = await prisma.transaction.create({
     data: {
       business_id,
@@ -513,9 +526,9 @@ export const createBusinessTransactionService = async (user_id, data) => {
       transaction_type,
       transaction_date: new Date(transaction_date),
       due_date: due_date ? new Date(due_date) : null,
-      subtotal_amount: parseFloat(subtotal_amount),
-      total_gst_amount: parseFloat(total_gst_amount),
-      total_amount: parseFloat(total_amount),
+      subtotal_amount: finalSubtotal,
+      total_gst_amount: finalGst,
+      total_amount: finalTotal,
       created_by_user_id: user_id,
       items: {
         create: items.map(item => ({
@@ -575,6 +588,19 @@ export const updateBusinessTransactionService = async (user_id, transaction_id, 
     where: { transaction_id },
   });
 
+  // For EXPENSE transactions, save total_amount as-is with no GST
+  // For SALE/PURCHASE, use the provided amounts
+  let finalSubtotal, finalGst, finalTotal;
+  if (transaction_type === "EXPENSE") {
+    finalSubtotal = 0;
+    finalGst = 0;
+    finalTotal = parseFloat(total_amount); // Use the amount directly as total
+  } else {
+    finalSubtotal = parseFloat(subtotal_amount);
+    finalGst = parseFloat(total_gst_amount);
+    finalTotal = parseFloat(total_amount);
+  }
+
   // Update transaction with new items
   const transaction = await prisma.transaction.update({
     where: { transaction_id },
@@ -585,9 +611,9 @@ export const updateBusinessTransactionService = async (user_id, transaction_id, 
       transaction_type,
       transaction_date: new Date(transaction_date),
       due_date: due_date ? new Date(due_date) : null,
-      subtotal_amount: parseFloat(subtotal_amount),
-      total_gst_amount: parseFloat(total_gst_amount),
-      total_amount: parseFloat(total_amount),
+      subtotal_amount: finalSubtotal,
+      total_gst_amount: finalGst,
+      total_amount: finalTotal,
       updated_by_user_id: user_id,
       items: {
         create: items.map(item => ({
@@ -729,11 +755,11 @@ export const getAllBusinessTransactionsService = async (user_id, query) => {
       created_at: transaction.created_at,
     };
 
-    // For EXPENSE transactions, only include basic fields (no party and items)
+    // For EXPENSE transactions, include items but no party
     if (transaction.transaction_type === "EXPENSE") {
       return {
         ...baseTransaction,
-        // Add minimal fields for expense
+        items: transaction.items,
       };
     }
 
