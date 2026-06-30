@@ -124,6 +124,7 @@ export const getTransactionsByPerson = async (req, res) => {
 };
 
 export const updateTransaction = async (req, res) => {
+   console.log("personal update req arrived in controller");
   try {
     const user_id = req.user.user_id;
     const { id } = req.params;
@@ -143,6 +144,7 @@ export const updateTransaction = async (req, res) => {
 };
 
 export const deleteTransaction = async (req, res) => {
+  console.log("personal dele req arrived in controller");
   try {
     const user_id = req.user.user_id;
     const { id } = req.params;
@@ -222,6 +224,7 @@ export const createBusinessTransaction = async (req, res) => {
 };
 
 export const updateBusinessTransaction = async (req, res) => {
+  console.log("updateBussiness req arrive in controller");
   try {
     const user_id = req.user.user_id;
     const { id } = req.params;
@@ -242,6 +245,7 @@ export const updateBusinessTransaction = async (req, res) => {
 };
 
 export const deleteBusinessTransaction = async (req, res) => {
+  console.log("deleteBusinessTransaction request arrived in controller");
   try {
     const user_id = req.user.user_id;
     const { id } = req.params;

@@ -384,6 +384,7 @@ export const getTransactionsByPersonService = async (user_id, name) => {
 };
 
 export const updateTransactionService = async (user_id, id, data) => {
+  console.log("update personal arrive in service");
   if (!user_id) {
     throw new Error("user_id is required");
   }
@@ -535,6 +536,7 @@ export const createBusinessTransactionService = async (user_id, data) => {
 };
 
 export const updateBusinessTransactionService = async (user_id, transaction_id, data) => {
+  console.log("udupdateBusinessTransaction request arrived in service");
   if (!user_id) {
     throw new Error("user_id is required");
   }
@@ -610,6 +612,7 @@ export const updateBusinessTransactionService = async (user_id, transaction_id, 
 };
 
 export const deleteBusinessTransactionService = async (user_id, transaction_id) => {
+  console.log("deleteBusinessTransaction request arrived in service");
   if (!user_id) {
     throw new Error("user_id is required");
   }
