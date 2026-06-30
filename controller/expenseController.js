@@ -168,7 +168,7 @@ export const deleteTransaction = async (req, res) => {
       where: { transaction_id: id },
       data: {
         is_deleted: true,
-        updated_by_user_id: user_id,
+        
       },
     });
 
