@@ -162,6 +162,7 @@ model Item {
 model Transaction {
   transaction_id     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   transaction_number String
+  title              String?
 
   context_type       ExpenseContextType @default(BUSINESS)
   
@@ -191,6 +192,7 @@ model Transaction {
   items              TransactionItem[]
   reminders          Reminder[]
 
+  
   @@unique([business_id, transaction_number])
   @@index([business_id])
   @@index([party_id])

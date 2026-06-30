@@ -480,6 +480,7 @@ export const createBusinessTransactionService = async (user_id, data) => {
   const {
     business_id,
     party_id,
+    title,
     transaction_type,
     transaction_date,
     due_date,
@@ -506,6 +507,7 @@ export const createBusinessTransactionService = async (user_id, data) => {
       party_id: party_id || null,
       user_id,
       transaction_number: nextNumber.toString(),
+      title: title?.trim() || "",
       context_type: "BUSINESS",
       transaction_type,
       transaction_date: new Date(transaction_date),
@@ -636,6 +638,7 @@ export const getAllBusinessTransactionsService = async (user_id, query) => {
     const baseTransaction = {
       transaction_id: transaction.transaction_id,
       transaction_number: transaction.transaction_number,
+      title: transaction.title,
       business_id: transaction.business_id,
       transaction_type: transaction.transaction_type,
       transaction_date: transaction.transaction_date.toISOString().split('T')[0],
