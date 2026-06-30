@@ -8,6 +8,7 @@ import {
   updateTransactionService,
   createReminderService,
   createBusinessTransactionService,
+  updateBusinessTransactionService,
   getAllBusinessTransactionsService,
   deleteBusinessTransactionService,
 } from "../services/expenseService.js"
@@ -209,6 +210,26 @@ export const createBusinessTransaction = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Business transaction created successfully",
+      data: transaction,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateBusinessTransaction = async (req, res) => {
+  try {
+    const user_id = req.user.user_id;
+    const { id } = req.params;
+    const transaction = await updateBusinessTransactionService(user_id, id, req.body);
+
+    return res.status(200).json({
+      success: true,
+      message: "Business transaction updated successfully",
       data: transaction,
     });
   } catch (error) {

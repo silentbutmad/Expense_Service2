@@ -534,6 +534,81 @@ export const createBusinessTransactionService = async (user_id, data) => {
   return transaction;
 };
 
+export const updateBusinessTransactionService = async (user_id, transaction_id, data) => {
+  if (!user_id) {
+    throw new Error("user_id is required");
+  }
+
+  const {
+    business_id,
+    party_id,
+    title,
+    transaction_type,
+    transaction_date,
+    due_date,
+    items = [],
+    subtotal_amount,
+    total_gst_amount,
+    total_amount,
+  } = data;
+
+  // Verify transaction exists and belongs to user's business
+  const existingTransaction = await prisma.transaction.findFirst({
+    where: {
+      transaction_id,
+      user_id,
+      is_deleted: false,
+    },
+    include: {
+      items: true,
+    },
+  });
+
+  if (!existingTransaction) {
+    throw new Error("Transaction not found");
+  }
+
+  // Delete existing items
+  await prisma.transactionItem.deleteMany({
+    where: { transaction_id },
+  });
+
+  // Update transaction with new items
+  const transaction = await prisma.transaction.update({
+    where: { transaction_id },
+    data: {
+      business_id,
+      party_id: party_id || null,
+      title: title?.trim() || "",
+      transaction_type,
+      transaction_date: new Date(transaction_date),
+      due_date: due_date ? new Date(due_date) : null,
+      subtotal_amount: parseFloat(subtotal_amount),
+      total_gst_amount: parseFloat(total_gst_amount),
+      total_amount: parseFloat(total_amount),
+      updated_by_user_id: user_id,
+      items: {
+        create: items.map(item => ({
+          item_id: item.item_id || null,
+          description: item.description || null,
+          quantity: parseInt(item.quantity),
+          price: parseFloat(item.price),
+        })),
+      },
+    },
+    include: {
+      items: {
+        include: {
+          item: true,
+        },
+      },
+      party: true,
+    },
+  });
+
+  return transaction;
+};
+
 export const deleteBusinessTransactionService = async (user_id, transaction_id) => {
   if (!user_id) {
     throw new Error("user_id is required");
