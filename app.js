@@ -27,7 +27,7 @@ app.listen(5000, () => {
     if (error) {
       console.log("Eureka registration failed:", error);
     } else {
-      console.log("AUTH-SERVICE registered with Eureka");
+      console.log("Expense-SERVICE registered with Eureka");
     }
   });
 

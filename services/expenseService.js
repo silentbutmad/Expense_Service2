@@ -439,7 +439,6 @@ export const updateTransactionService = async (user_id, id, data) => {
     loan_type: transaction_type === "LOAN" ? loan_type : null,
     transaction_date: finalTransactionDate,
     due_date: due_date ? new Date(due_date) : null,
-    updated_by_user_id: user_id,
   };
 
   return await prisma.personalTransaction.update({
